@@ -32,6 +32,7 @@ Plataforma de venda de ingressos para eventos com capacidade limitada.
 - `prisma/schema.prisma` — modelo de dados
 - `src/components/ui/` — componentes shadcn
 - `src/components/home/` — home (muro de cartazes, ficha do show, bilheteria) e `home.css`
+- `src/components/motion-primitives/` — componentes do motion-primitives (código copiado, pode editar). O CLI (`pnpm dlx motion-primitives@latest add <x>`) cria em `components/` na raiz e importa de `@/lib/utils`: mova para `src/components/motion-primitives/` e use imports `#/` e `import type`
 - `src/data/featured-events.ts` — eventos de EXEMPLO (fictícios) até o cadastro no banco existir
 - `PRODUCT.md` — verdade do produto (público, posicionamento, o que não pode ser inventado)
 - `DESIGN.md` — sistema visual: cores, tipografia e componentes. Leia antes de mexer em UI

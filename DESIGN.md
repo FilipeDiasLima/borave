@@ -95,7 +95,7 @@ A interface é uma rua à noite: um muro de tijolo apagado, cartazes colados e u
 ## Elevation & Depth
 
 - Profundidade vem da luz, não de cartões: o cartaz iluminado tem sombra deslocada para baixo e camada de luz no topo; os outros ficam em `brightness(.3)`.
-- O carrossel usa perspectiva 3D real; o cone de luz fica entre o cartaz aceso e os vizinhos.
+- O carrossel usa perspectiva 3D real; o cone de luz fica na frente dos cartazes (luz caindo sobre o papel), sem receber clique.
 
 ## Shapes
 
@@ -105,7 +105,7 @@ A interface é uma rua à noite: um muro de tijolo apagado, cartazes colados e u
 ## Components
 
 - `Poster`: foto + tipografia de cartaz. Tons `red` e `gold` imprimem a foto em duotom (lambe-lambe); `night` mantém a foto natural.
-- `PosterWall`: carrossel infinito (setas, teclado, swipe, pontos). Ao trocar, a lâmpada pisca como tungstênio uma vez.
+- `PosterWall`: carrossel infinito sobre o `Carousel` do motion-primitives (trilho com 3 cópias da lista, 5 células no desktop e 3 no celular, cartaz aceso na célula do meio). Setas, teclado, arrasto, pontos e clique no cartaz. Ao trocar, a lâmpada pisca como tungstênio uma vez.
 - `TicketBooth`: canhotos com quantidade limitada por `maxPurchasable` (domínio) e resumo do pedido.
 
 ## Do's and Don'ts

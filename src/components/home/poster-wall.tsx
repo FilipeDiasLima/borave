@@ -1,6 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { ArrowDown, ChevronLeft, ChevronRight } from 'lucide-react'
+import type { Transition } from 'motion/react'
 
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+} from '#/components/motion-primitives/carousel'
 import type { FeaturedEvent } from '#/data/featured-events'
 import { formatShortDateTime } from '#/lib/format'
 import { Lamp } from './lamp'
@@ -12,64 +18,91 @@ type PosterWallProps = {
   onChange: (index: number) => void
 }
 
-type Direction = 'next' | 'prev'
-
-const SWIPE_THRESHOLD_PX = 48
-
 /**
- * Posição circular de um cartaz em relação ao cartaz iluminado.
- * 0 = sob a lâmpada; negativos à esquerda; positivos à direita.
+ * O trilho do Carousel mostra 5 células no desktop e 3 no celular (ver `w-1/5` e
+ * `w-1/3` abaixo); o cartaz aceso é sempre a célula do meio.
  */
-function circularOffset(
-  index: number,
-  active: number,
-  total: number,
-  direction: Direction,
-): number {
-  let offset = (((index - active) % total) + total) % total
-  if (offset > total / 2) offset -= total
-  // Com quantidade par, o cartaz oposto fica ambíguo: entra pelo lado do movimento.
-  if (total % 2 === 0 && Math.abs(offset) === total / 2) {
-    offset = direction === 'next' ? total / 2 : -total / 2
-  }
-  return offset
-}
+const DESKTOP_QUERY = '(min-width: 721px)'
+const cellsFor = (desktop: boolean) => (desktop ? 5 : 3)
+
+/** Três cópias da lista: o usuário anda na do meio e nunca chega ao fim do trilho. */
+const COPIES = 3
+
+const SLIDE: Transition = { duration: 0.78, ease: [0.16, 1, 0.3, 1] }
+const INSTANT: Transition = { duration: 0 }
+
+const mod = (value: number, total: number) => ((value % total) + total) % total
 
 export function PosterWall({ events, activeIndex, onChange }: PosterWallProps) {
   const total = events.length
-  const active = events[activeIndex]
-  const [direction, setDirection] = useState<Direction>('next')
+  const track = Array.from({ length: COPIES }, () => events).flat()
+
+  // Posição do cartaz aceso no trilho; começa no evento ativo, na cópia do meio.
+  const [lit, setLit] = useState(total + activeIndex)
+  const [desktop, setDesktop] = useState(true)
+  // Instantâneo no primeiro paint (o Carousel ainda mede as células) e nos saltos de volta.
+  const [instant, setInstant] = useState(true)
   const [flickerKey, setFlickerKey] = useState(0)
-  const previousOffsets = useRef(new Map<string, number>())
-  const dragStartX = useRef<number | null>(null)
-  const dragged = useRef(false)
+  // Onde o ponteiro desceu: um clique que termina um arrasto não conta como clique.
+  const pressX = useRef<number | null>(null)
   const heroRef = useRef<HTMLElement>(null)
 
-  const go = (target: number, dir: Direction) => {
-    setDirection(dir)
-    setFlickerKey((key) => key + 1)
-    onChange(((target % total) + total) % total)
-  }
-  const next = () => go(activeIndex + 1, 'next')
-  const prev = () => go(activeIndex - 1, 'prev')
+  // O Carousel indexa pela primeira célula visível; o aceso fica no meio da janela.
+  const litOffset = (cellsFor(desktop) - 1) / 2
+  const index = lit - litOffset
+  const litEvent = mod(lit, total)
+  const active = events[litEvent]
 
-  const offsets = events.map((event, index) => {
-    const offset = circularOffset(index, activeIndex, total, direction)
-    const before = previousOffsets.current.get(event.id)
-    // Um salto maior que uma casa é a volta do carrossel infinito: teletransporta sem deslizar.
-    const jump = before !== undefined && Math.abs(offset - before) > 1
-    return { event, index, offset, jump }
-  })
+  const move = (delta: number) => {
+    if (delta === 0) return
+    setInstant(false)
+    setLit((current) => current + delta)
+  }
+  const next = () => move(1)
+  const prev = () => move(-1)
 
   useEffect(() => {
-    offsets.forEach(({ event, offset }) => previousOffsets.current.set(event.id, offset))
-  })
+    const timer = window.setTimeout(() => setInstant(false), 250)
+    return () => window.clearTimeout(timer)
+  }, [])
+
+  // Desktop e celular mostram quantidades diferentes de células.
+  useEffect(() => {
+    const query = window.matchMedia(DESKTOP_QUERY)
+    const sync = () => {
+      setInstant(true)
+      setDesktop(query.matches)
+    }
+    sync()
+    query.addEventListener('change', sync)
+    return () => query.removeEventListener('change', sync)
+  }, [])
+
+  // Avisa a página e pisca a lâmpada quando o cartaz aceso muda.
+  useEffect(() => {
+    if (litEvent !== activeIndex) {
+      onChange(litEvent)
+      setFlickerKey((key) => key + 1)
+    }
+  }, [litEvent, activeIndex, onChange])
+
+  // Carrossel infinito: depois do deslize, se o cartaz aceso saiu da cópia do meio,
+  // volta para o mesmo cartaz na cópia do meio sem animação (ninguém vê o salto).
+  useEffect(() => {
+    if (lit >= total && lit < total * 2) return
+    const timer = window.setTimeout(() => {
+      setInstant(true)
+      setLit(total + mod(lit, total))
+    }, SLIDE.duration! * 1000)
+    return () => window.clearTimeout(timer)
+  }, [lit, total])
 
   // Setas do teclado trocam de cartaz quando ninguém está digitando.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null
-      if (target && ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)) return
+      if (target && ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName))
+        return
       if (e.key === 'ArrowRight') next()
       if (e.key === 'ArrowLeft') prev()
     }
@@ -84,7 +117,10 @@ export function PosterWall({ events, activeIndex, onChange }: PosterWallProps) {
     let frame = 0
     const update = () => {
       frame = 0
-      const progress = Math.min(1, Math.max(0, window.scrollY / hero.offsetHeight))
+      const progress = Math.min(
+        1,
+        Math.max(0, window.scrollY / hero.offsetHeight),
+      )
       hero.style.setProperty('--scroll', progress.toFixed(3))
     }
     const onScroll = () => {
@@ -97,20 +133,6 @@ export function PosterWall({ events, activeIndex, onChange }: PosterWallProps) {
       cancelAnimationFrame(frame)
     }
   }, [])
-
-  const onPointerDown = (e: React.PointerEvent) => {
-    dragStartX.current = e.clientX
-    dragged.current = false
-  }
-  const onPointerUp = (e: React.PointerEvent) => {
-    if (dragStartX.current === null) return
-    const dx = e.clientX - dragStartX.current
-    dragStartX.current = null
-    if (Math.abs(dx) < SWIPE_THRESHOLD_PX) return
-    dragged.current = true
-    if (dx < 0) next()
-    else prev()
-  }
 
   return (
     <section
@@ -125,69 +147,95 @@ export function PosterWall({ events, activeIndex, onChange }: PosterWallProps) {
       <div className="wall__brick" aria-hidden="true" />
       <div className="wall__pool" aria-hidden="true" />
 
+      {/* O cone fica na frente dos cartazes: a luz cai sobre o papel. */}
+      <div
+        key={flickerKey}
+        className="wall__cone"
+        data-flicker={flickerKey > 0}
+        aria-hidden="true"
+      />
       <div className="wall__lamp" aria-hidden="true">
         <Lamp />
       </div>
 
       <div
         className="wall__stage"
-        onPointerDown={onPointerDown}
-        onPointerUp={onPointerUp}
-        onPointerCancel={() => (dragStartX.current = null)}
+        data-instant={instant}
+        onPointerDownCapture={(e) => (pressX.current = e.clientX)}
       >
-        {/* Em 3D, o cone fica atrás do cartaz iluminado e na frente dos cartazes laterais. */}
-        <div
-          key={flickerKey}
-          className="wall__cone"
-          data-flicker={flickerKey > 0}
-          aria-hidden="true"
-        />
-        {offsets.map(({ event, index, offset, jump }) => {
-          const distance = Math.abs(offset)
-          const isActive = offset === 0
-          return (
-            <button
-              key={event.id}
-              type="button"
-              className="wall__slot"
-              data-active={isActive}
-              data-distance={Math.min(distance, 3)}
-              data-jump={jump}
-              style={
-                {
-                  '--d': offset,
-                  '--abs': distance,
-                } as React.CSSProperties
-              }
-              tabIndex={isActive || distance === 1 ? 0 : -1}
-              aria-hidden={distance > 2}
-              aria-current={isActive ? 'true' : undefined}
-              aria-label={
-                isActive
-                  ? `${event.title}, cartaz em destaque`
-                  : `Ver ${event.title}`
-              }
-              onClick={() => {
-                if (dragged.current) return
-                if (isActive) {
-                  document.getElementById('o-show')?.scrollIntoView()
-                  return
-                }
-                go(index, offset > 0 ? 'next' : 'prev')
-              }}
-            >
-              <Poster event={event} lit={isActive} eager={distance <= 1} />
-            </button>
-          )
-        })}
-
+        <Carousel
+          className="wall__carousel"
+          index={index}
+          onIndexChange={(value) => {
+            setInstant(false)
+            setLit(value + litOffset)
+          }}
+        >
+          <CarouselContent
+            className="wall__track"
+            transition={instant ? INSTANT : SLIDE}
+          >
+            {track.map((event, position) => {
+              // Distância real no trilho: decide foco, leitor de tela e clique.
+              const offset = position - lit
+              // Distância circular (por evento): decide o visual. Como a volta do
+              // carrossel infinito salta exatamente uma cópia, todo cartaz mantém o
+              // mesmo visual antes e depois do salto, e nada pisca.
+              let visual = mod(offset, total)
+              if (visual > total / 2) visual -= total
+              const distance = Math.min(Math.abs(visual), 3)
+              const inView = Math.abs(offset) <= 1
+              const isActive = offset === 0
+              return (
+                <CarouselItem
+                  key={`${event.id}-${position}`}
+                  className={`wall__item wall__item--d${distance} w-1/3 overflow-visible min-[721px]:w-1/5`}
+                >
+                  <button
+                    type="button"
+                    className="wall__slot"
+                    data-active={isActive}
+                    data-distance={distance}
+                    style={
+                      {
+                        '--d': Math.max(-3, Math.min(3, visual)),
+                        '--abs': distance,
+                      } as React.CSSProperties
+                    }
+                    tabIndex={inView ? 0 : -1}
+                    aria-hidden={inView ? undefined : true}
+                    aria-current={isActive ? 'true' : undefined}
+                    aria-label={
+                      isActive
+                        ? `${event.title}, cartaz em destaque`
+                        : `Ver ${event.title}`
+                    }
+                    onClick={(e) => {
+                      // Ignora o clique que encerra um arrasto.
+                      const start = pressX.current
+                      if (start !== null && Math.abs(e.clientX - start) > 8)
+                        return
+                      if (isActive) {
+                        document.getElementById('o-show')?.scrollIntoView()
+                        return
+                      }
+                      move(offset)
+                    }}
+                  >
+                    <Poster event={event} lit={visual === 0} eager />
+                  </button>
+                </CarouselItem>
+              )
+            })}
+          </CarouselContent>
+        </Carousel>
       </div>
 
       <div className="wall__caption">
         <div aria-live="polite">
           <p className="wall__line tabular">
             <span className="sr-only">
-              Cartaz {activeIndex + 1} de {total}:{' '}
+              Cartaz {litEvent + 1} de {total}:{' '}
             </span>
             <span className="wall__category">{active.category}</span>
             <span aria-hidden="true"> · </span>
@@ -226,18 +274,20 @@ export function PosterWall({ events, activeIndex, onChange }: PosterWallProps) {
           </button>
         </div>
         <ol className="wall__dots" aria-label="Escolher cartaz">
-          {events.map((event, index) => (
+          {events.map((event, dot) => (
             <li key={event.id}>
               <button
                 type="button"
                 className="wall__dot"
-                data-active={index === activeIndex}
+                data-active={dot === litEvent}
                 aria-label={`${event.title}`}
-                aria-current={index === activeIndex ? 'true' : undefined}
-                onClick={() =>
-                  index !== activeIndex &&
-                  go(index, index > activeIndex ? 'next' : 'prev')
-                }
+                aria-current={dot === litEvent ? 'true' : undefined}
+                onClick={() => {
+                  // Caminho mais curto no círculo de cartazes.
+                  let delta = mod(dot - litEvent, total)
+                  if (delta > total / 2) delta -= total
+                  move(delta)
+                }}
               />
             </li>
           ))}

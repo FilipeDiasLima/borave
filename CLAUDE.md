@@ -16,7 +16,8 @@ Plataforma de venda de ingressos para eventos com capacidade limitada.
 | ------------------------ | ------------------------------------------- |
 | `pnpm dev`               | Dev server em http://localhost:3000         |
 | `pnpm build`             | Build de produção                           |
-| `pnpm exec tsc --noEmit` | Typecheck                                   |
+| `pnpm typecheck`         | Typecheck                                   |
+| `pnpm test`              | Testes (Vitest, execução única)             |
 | `pnpm lint`              | ESLint                                      |
 | `pnpm format`            | Prettier + ESLint --fix                     |
 | `pnpm db:migrate`        | Cria e aplica migration após mudar o schema |
@@ -26,6 +27,7 @@ Plataforma de venda de ingressos para eventos com capacidade limitada.
 ## Estrutura
 
 - `src/routes/` — páginas e rotas (file-based routing)
+- `src/domain/` — regras de negócio puras, com teste ao lado (`*.test.ts`). Nunca importe Prisma, React ou HTTP aqui
 - `src/db.ts` — instância única do Prisma; sempre importe daqui
 - `prisma/schema.prisma` — modelo de dados
 - `src/components/ui/` — componentes shadcn
@@ -48,4 +50,5 @@ Plataforma de venda de ingressos para eventos com capacidade limitada.
 - Mudou o schema do Prisma? Use `pnpm db:migrate` (não `db:push`) e depois `pnpm db:generate`.
 - Componente novo do shadcn: `pnpm dlx shadcn@latest add <componente>`.
 - Nunca leia nem altere `.env.local`.
-- Antes de concluir uma tarefa: typecheck e lint precisam passar.
+- Nunca use `eslint-disable` ou `@ts-ignore` para silenciar um erro. Corrija a causa ou pare e pergunte ao usuário.
+- Antes de concluir uma tarefa: `pnpm typecheck`, `pnpm lint` e `pnpm test` precisam passar.

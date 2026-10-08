@@ -31,6 +31,7 @@ Plataforma de venda de ingressos para eventos com capacidade limitada.
 - `src/db.ts` — instância única do Prisma; sempre importe daqui
 - `prisma/schema.prisma` — modelo de dados
 - `src/components/ui/` — componentes shadcn
+- `.claude/hooks/` — hooks do harness: typecheck + lint após cada edição de `.ts/.tsx` e testes ao concluir a tarefa. Os erros que eles devolvem são para você corrigir na causa
 
 ## Arquivos gerados (nunca edite à mão)
 

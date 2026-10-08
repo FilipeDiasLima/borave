@@ -1,3 +1,4 @@
+import { HIGHLIGHT_LABEL } from '#/data/featured-events'
 import type { FeaturedEvent } from '#/data/featured-events'
 import { formatShortDateTime } from '#/lib/format'
 import { cn } from '#/lib/utils'
@@ -29,6 +30,9 @@ export function Poster({ event, lit, eager = false, className }: PosterProps) {
         draggable={false}
       />
       <div className="poster__grade" aria-hidden="true" />
+      {event.highlight && (
+        <span className="poster__tape">{HIGHLIGHT_LABEL[event.highlight]}</span>
+      )}
       <figcaption className="poster__type">
         <span className="poster__presenter">{event.presenter}</span>
         <span className="poster__title font-display">{event.title}</span>

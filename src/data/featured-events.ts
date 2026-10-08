@@ -23,8 +23,17 @@ export type LineupEntry = {
   role: string
 }
 
+/** Por que o evento está no muro da home. Eventos sem destaque só aparecem na listagem. */
+export type Highlight = 'semana' | 'mes'
+
+export const HIGHLIGHT_LABEL: Record<Highlight, string> = {
+  semana: 'Destaque da semana',
+  mes: 'Destaque do mês',
+}
+
 export type FeaturedEvent = {
   id: string
+  highlight?: Highlight
   category: string
   title: string
   presenter: string
@@ -60,6 +69,7 @@ const unsplash = (id: string) =>
 export const featuredEvents: Array<FeaturedEvent> = [
   {
     id: 'sereno-de-lua',
+    highlight: 'semana',
     category: 'Pagode',
     title: 'Sereno de Lua',
     presenter: 'Grupo Sereno de Lua',
@@ -122,6 +132,7 @@ export const featuredEvents: Array<FeaturedEvent> = [
   },
   {
     id: 'a-ultima-sessao',
+    highlight: 'semana',
     category: 'Teatro',
     title: 'A Última Sessão',
     presenter: 'Cia. Lanterna Vermelha',
@@ -183,6 +194,7 @@ export const featuredEvents: Array<FeaturedEvent> = [
   },
   {
     id: 'sem-filtro',
+    highlight: 'mes',
     category: 'Stand-up',
     title: 'Sem Filtro',
     presenter: 'Dani Ferraz',
@@ -234,6 +246,7 @@ export const featuredEvents: Array<FeaturedEvent> = [
   },
   {
     id: 'mare-alta',
+    highlight: 'mes',
     category: 'Rock',
     title: 'Maré Alta',
     presenter: 'Turnê Água Funda',
@@ -296,6 +309,7 @@ export const featuredEvents: Array<FeaturedEvent> = [
   },
   {
     id: 'quarteto-bambu',
+    highlight: 'mes',
     category: 'Jazz',
     title: 'Quarteto Bambu',
     presenter: 'Jazz no Terraço',
@@ -349,6 +363,7 @@ export const featuredEvents: Array<FeaturedEvent> = [
   },
   {
     id: 'corpo-em-brasa',
+    highlight: 'mes',
     category: 'Dança',
     title: 'Corpo em Brasa',
     presenter: 'Cia. Ventania',

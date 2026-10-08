@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
-import { ArrowDown, ChevronLeft, ChevronRight } from 'lucide-react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { ArrowDown, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
 import type { Transition } from 'motion/react'
 
 import {
@@ -7,6 +7,7 @@ import {
   CarouselContent,
   CarouselItem,
 } from '#/components/motion-primitives/carousel'
+import { HIGHLIGHT_LABEL } from '#/data/featured-events'
 import type { FeaturedEvent } from '#/data/featured-events'
 import { formatShortDateTime } from '#/lib/format'
 import { Lamp } from './lamp'
@@ -16,6 +17,9 @@ type PosterWallProps = {
   events: Array<FeaturedEvent>
   activeIndex: number
   onChange: (index: number) => void
+  /** Total de eventos na listagem completa e como abri-la (a partir de um botão). */
+  allEventsCount: number
+  onOpenAll: (from: HTMLElement) => void
 }
 
 /**
@@ -33,7 +37,13 @@ const INSTANT: Transition = { duration: 0 }
 
 const mod = (value: number, total: number) => ((value % total) + total) % total
 
-export function PosterWall({ events, activeIndex, onChange }: PosterWallProps) {
+export function PosterWall({
+  events,
+  activeIndex,
+  onChange,
+  allEventsCount,
+  onOpenAll,
+}: PosterWallProps) {
   const total = events.length
   const track = Array.from({ length: COPIES }, () => events).flat()
 
@@ -43,6 +53,9 @@ export function PosterWall({ events, activeIndex, onChange }: PosterWallProps) {
   // Instantâneo no primeiro paint (o Carousel ainda mede as células) e nos saltos de volta.
   const [instant, setInstant] = useState(true)
   const [flickerKey, setFlickerKey] = useState(0)
+  // Antes da hidratação, o CSS posiciona o trilho; depois, quem manda é o Carousel.
+  const [ready, setReady] = useState(false)
+  useLayoutEffect(() => setReady(true), [])
   // Onde o ponteiro desceu: um clique que termina um arrasto não conta como clique.
   const pressX = useRef<number | null>(null)
   const heroRef = useRef<HTMLElement>(null)
@@ -100,6 +113,8 @@ export function PosterWall({ events, activeIndex, onChange }: PosterWallProps) {
   // Setas do teclado trocam de cartaz quando ninguém está digitando.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      // Com a listagem aberta por cima, as setas não mexem no muro.
+      if (document.documentElement.dataset.overlay) return
       const target = e.target as HTMLElement | null
       if (target && ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName))
         return
@@ -142,7 +157,7 @@ export function PosterWall({ events, activeIndex, onChange }: PosterWallProps) {
       aria-roledescription="carrossel"
       aria-label="Eventos em cartaz"
     >
-      <h1 className="sr-only">Bora Vê: ingressos para os eventos em cartaz</h1>
+      <h1 className="sr-only">Destaques da semana e do mês no Bora Vê</h1>
 
       <div className="wall__brick" aria-hidden="true" />
       <div className="wall__pool" aria-hidden="true" />
@@ -161,6 +176,7 @@ export function PosterWall({ events, activeIndex, onChange }: PosterWallProps) {
       <div
         className="wall__stage"
         data-instant={instant}
+        data-ready={ready}
         onPointerDownCapture={(e) => (pressX.current = e.clientX)}
       >
         <Carousel
@@ -237,8 +253,18 @@ export function PosterWall({ events, activeIndex, onChange }: PosterWallProps) {
             <span className="sr-only">
               Cartaz {litEvent + 1} de {total}:{' '}
             </span>
-            <span className="wall__category">{active.category}</span>
-            <span aria-hidden="true"> · </span>
+            {active.highlight && (
+              <>
+                <span className="wall__highlight">
+                  {HIGHLIGHT_LABEL[active.highlight]}
+                </span>
+                <span aria-hidden="true"> · </span>
+              </>
+            )}
+            <span className="wall__category-group">
+              <span className="wall__category">{active.category}</span>
+              <span aria-hidden="true"> · </span>
+            </span>
             {formatShortDateTime(active.startsAt)}
             <span className="wall__venue">
               <span aria-hidden="true"> · </span>
@@ -292,6 +318,14 @@ export function PosterWall({ events, activeIndex, onChange }: PosterWallProps) {
             </li>
           ))}
         </ol>
+        <button
+          type="button"
+          className="wall__all"
+          onClick={(e) => onOpenAll(e.currentTarget)}
+        >
+          Ver todos os {allEventsCount} eventos
+          <ArrowRight aria-hidden="true" size={16} strokeWidth={1.75} />
+        </button>
       </div>
     </section>
   )

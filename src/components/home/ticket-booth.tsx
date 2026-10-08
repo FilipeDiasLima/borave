@@ -24,7 +24,13 @@ type Quantities = Record<string, number>
  * Bilheteria do evento selecionado. Escolher setor e quantidade já funciona;
  * finalizar a compra ainda não existe (próxima etapa do projeto).
  */
-export function TicketBooth({ event }: { event: FeaturedEvent }) {
+type TicketBoothProps = {
+  event: FeaturedEvent
+  /** Prefixo dos ids, para a bilheteria poder aparecer também dentro do modal. */
+  idPrefix?: string
+}
+
+export function TicketBooth({ event, idPrefix = '' }: TicketBoothProps) {
   const [quantities, setQuantities] = useState<Quantities>({})
 
   const limitFor = (tier: TicketTier) =>
@@ -54,10 +60,17 @@ export function TicketBooth({ event }: { event: FeaturedEvent }) {
   const ticketCount = selected.reduce((sum, { quantity }) => sum + quantity, 0)
 
   return (
-    <section id="ingressos" className="booth" aria-labelledby="booth-title">
+    <section
+      id={`${idPrefix}ingressos`}
+      className="booth"
+      aria-labelledby={`${idPrefix}booth-title`}
+    >
       <div className="booth__inner">
         <header className="booth__head">
-          <h2 id="booth-title" className="booth__title font-display">
+          <h2
+            id={`${idPrefix}booth-title`}
+            className="booth__title font-display"
+          >
             Ingressos
           </h2>
           <p className="booth__event tabular">
@@ -72,7 +85,7 @@ export function TicketBooth({ event }: { event: FeaturedEvent }) {
               const quantity = quantities[tier.id] ?? 0
               const limit = limitFor(tier)
               const soldOut = isSoldOut(tier)
-              const labelId = `tier-${tier.id}`
+              const labelId = `${idPrefix}tier-${tier.id}`
               return (
                 <li
                   key={tier.id}
@@ -85,7 +98,10 @@ export function TicketBooth({ event }: { event: FeaturedEvent }) {
                       {tier.name}
                     </p>
                     <p className="stub__description">{tier.description}</p>
-                    <p className="stub__availability" data-low={!soldOut && limit < PER_ORDER_LIMIT}>
+                    <p
+                      className="stub__availability"
+                      data-low={!soldOut && limit < PER_ORDER_LIMIT}
+                    >
                       {availabilityLabel(tier)}
                     </p>
                   </div>
@@ -93,7 +109,11 @@ export function TicketBooth({ event }: { event: FeaturedEvent }) {
                     <p className="stub__price font-display tabular">
                       {formatBRL(tier.priceCents)}
                     </p>
-                    <div className="stepper" role="group" aria-label={`Quantidade de ${tier.name}`}>
+                    <div
+                      className="stepper"
+                      role="group"
+                      aria-label={`Quantidade de ${tier.name}`}
+                    >
                       <button
                         type="button"
                         className="stepper__btn"
@@ -103,7 +123,10 @@ export function TicketBooth({ event }: { event: FeaturedEvent }) {
                       >
                         <Minus aria-hidden="true" size={16} strokeWidth={2} />
                       </button>
-                      <output className="stepper__value tabular" aria-live="polite">
+                      <output
+                        className="stepper__value tabular"
+                        aria-live="polite"
+                      >
                         {quantity}
                       </output>
                       <button
@@ -149,13 +172,20 @@ export function TicketBooth({ event }: { event: FeaturedEvent }) {
             )}
             <p className="summary__total tabular">
               <span className="summary__total-label">
-                Total{ticketCount > 0 ? ` · ${ticketCount} ${ticketCount === 1 ? 'ingresso' : 'ingressos'}` : ''}
+                Total
+                {ticketCount > 0
+                  ? ` · ${ticketCount} ${ticketCount === 1 ? 'ingresso' : 'ingressos'}`
+                  : ''}
               </span>
               <span className="summary__total-value font-display">
                 {formatBRL(totalCents)}
               </span>
             </p>
-            <button type="button" className="btn btn--paper summary__cta" disabled>
+            <button
+              type="button"
+              className="btn btn--paper summary__cta"
+              disabled
+            >
               Finalizar compra
             </button>
             <p className="summary__note">

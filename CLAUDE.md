@@ -33,7 +33,9 @@ Plataforma de venda de ingressos para eventos com capacidade limitada.
 - `src/components/ui/` — componentes shadcn
 - `src/components/home/` — home (muro de cartazes, ficha do show, bilheteria) e `home.css`
 - `src/components/motion-primitives/` — componentes do motion-primitives (código copiado, pode editar). O CLI (`pnpm dlx motion-primitives@latest add <x>`) cria em `components/` na raiz e importa de `@/lib/utils`: mova para `src/components/motion-primitives/` e use imports `#/` e `import type`
-- `src/data/featured-events.ts` — eventos de EXEMPLO (fictícios) até o cadastro no banco existir
+- `src/data/` — eventos de EXEMPLO (fictícios) até o cadastro no banco existir: `featured-events.ts` (os 6 do muro, com `highlight`), `more-events.ts` (outros 15) e `all-events.ts` (todos, por data). `all-events.test.ts` valida os dados contra as regras do domínio
+- `src/components/ui/parallax-scroll.tsx` — Parallax Scroll da Aceternity (`pnpm dlx shadcn@latest add @aceternity/parallax-scroll-demo`), com edição mínima marcada no topo do arquivo (`renderItem`, `gridClassName`). Ao atualizar pelo CLI, reaplique essas duas props
+- `src/lib/view-transition.ts` — `withViewTransition`: use para transições de elemento compartilhado (card → página do evento). Só um elemento por vez pode ter o mesmo `view-transition-name`
 - `PRODUCT.md` — verdade do produto (público, posicionamento, o que não pode ser inventado)
 - `DESIGN.md` — sistema visual: cores, tipografia e componentes. Leia antes de mexer em UI
 - `.claude/hooks/` — hooks do harness: typecheck + lint após cada edição de `.ts/.tsx` e testes ao concluir a tarefa. Os erros que eles devolvem são para você corrigir na causa

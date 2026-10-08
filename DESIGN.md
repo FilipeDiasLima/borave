@@ -106,6 +106,9 @@ A interface é uma rua à noite: um muro de tijolo apagado, cartazes colados e u
 
 - `Poster`: foto + tipografia de cartaz. Tons `red` e `gold` imprimem a foto em duotom (lambe-lambe); `night` mantém a foto natural.
 - `PosterWall`: carrossel infinito sobre o `Carousel` do motion-primitives (trilho com 3 cópias da lista, 5 células no desktop e 3 no celular, cartaz aceso na célula do meio). Setas, teclado, arrasto, pontos e clique no cartaz. Ao trocar, a lâmpada pisca como tungstênio uma vez.
+- `EventsListing`: todos os eventos numa grade de cartazes em parallax; abre em círculo crescendo a partir do botão clicado.
+- `EventSheet`: página do evento por cima da listagem. O cartaz do card se transforma no cartaz do topo (View Transition `event-cover`, 620ms, ease-out-expo); o resto da tela troca em 280ms. Fecha fazendo o caminho inverso.
+- Fita de destaque: tira dourada colada no topo do cartaz, "Destaque da semana" ou "Destaque do mês".
 - `TicketBooth`: canhotos com quantidade limitada por `maxPurchasable` (domínio) e resumo do pedido.
 
 ## Do's and Don'ts

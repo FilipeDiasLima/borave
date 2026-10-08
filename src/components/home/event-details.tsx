@@ -1,4 +1,5 @@
 import { CalendarDays, Clock, MapPin } from 'lucide-react'
+import type { ReactNode } from 'react'
 
 import type { FeaturedEvent } from '#/data/featured-events'
 import {
@@ -10,17 +11,36 @@ import {
 import { Poster } from './poster'
 
 /** O que o cartaz não cabe: onde, quando, quem sobe ao palco e a história do show. */
-export function EventDetails({ event }: { event: FeaturedEvent }) {
+type EventDetailsProps = {
+  event: FeaturedEvent
+  /** Prefixo dos ids da seção, para a ficha poder aparecer também dentro do modal. */
+  idPrefix?: string
+  /** Substitui o cartaz da coluna lateral (o modal usa o cartaz da transição). */
+  posterSlot?: ReactNode
+  variant?: 'page' | 'sheet'
+}
+
+export function EventDetails({
+  event,
+  idPrefix = '',
+  posterSlot,
+  variant = 'page',
+}: EventDetailsProps) {
+  const titleId = `${idPrefix}details-title`
   return (
-    <section id="o-show" className="details" aria-labelledby="details-title">
+    <section
+      id={`${idPrefix}o-show`}
+      className={variant === 'sheet' ? 'details details--sheet' : 'details'}
+      aria-labelledby={titleId}
+    >
       <div className="details__poster">
         <div className="details__poster-light" aria-hidden="true" />
-        <Poster event={event} lit eager />
+        {posterSlot ?? <Poster event={event} lit eager />}
       </div>
 
       <div className="details__body">
         <header className="details__head">
-          <h2 id="details-title" className="details__title font-display">
+          <h2 id={titleId} className="details__title font-display">
             {event.title}
           </h2>
           <p className="details__byline">{event.presenter}</p>
@@ -37,7 +57,9 @@ export function EventDetails({ event }: { event: FeaturedEvent }) {
               <span className="fact__big font-display tabular">
                 {formatDay(event.startsAt)} {formatMonthShort(event.startsAt)}
               </span>
-              <span className="fact__small">{formatWeekday(event.startsAt)}</span>
+              <span className="fact__small">
+                {formatWeekday(event.startsAt)}
+              </span>
             </dd>
           </div>
           <div className="fact">
@@ -50,7 +72,8 @@ export function EventDetails({ event }: { event: FeaturedEvent }) {
                 {formatTime(event.startsAt)}
               </span>
               <span className="fact__small">
-                Portões às {formatTime(event.doorsOpenAt)} · {event.durationLabel}
+                Portões às {formatTime(event.doorsOpenAt)} ·{' '}
+                {event.durationLabel}
               </span>
             </dd>
           </div>

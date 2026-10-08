@@ -1,0 +1,16 @@
+{
+  "motion": {
+    "easeOutExpo": "cubic-bezier(0.16, 1, 0.3, 1)",
+    "carouselSlide": "780ms easeOutExpo",
+    "posterLight": "700ms easeOutExpo",
+    "lampFlicker": "620ms steps(1, end), once per poster change",
+    "reducedMotion": "no slide transitions, no flicker"
+  },
+  "shadows": {
+    "posterLit": "0 46px 70px -24px night",
+    "stub": "0 18px 30px -18px night",
+    "summary": "0 30px 50px -28px night"
+  },
+  "focus": "2px solid tungsten, offset 3px",
+  "selection": "tungsten background, ink text"
+}

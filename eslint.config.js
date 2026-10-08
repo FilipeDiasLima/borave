@@ -4,6 +4,8 @@ import { tanstackConfig } from '@tanstack/eslint-config'
 
 const STORAGE_MSG =
   'Proibido usar Web Storage no Bora Vê (CLAUDE.md > Regras). Se for realmente necessário, pare e peça permissão ao usuário antes de prosseguir.'
+const COLOR_MSG =
+  'Cor solta no className. Use os tokens de src/styles.css (ex.: bg-night, text-tungsten). Se faltar uma cor, crie o token lá (ver DESIGN.md).'
 const COOKIE_MSG =
   'Cookies de auth são HttpOnly e definidos só pelo servidor (CLAUDE.md > Regras). Não leia nem escreva document.cookie no cliente.'
 
@@ -36,6 +38,18 @@ export default [
         { object: 'globalThis', property: 'localStorage', message: STORAGE_MSG },
         { object: 'globalThis', property: 'sessionStorage', message: STORAGE_MSG },
         { object: 'document', property: 'cookie', message: COOKIE_MSG },
+      ],
+      // Design system: nada de cor arbitrária do Tailwind (text-[#ff0000], bg-[rgb(...)]).
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'Literal[value=/\\[(#|rgb|hsl|oklch)/]',
+          message: COLOR_MSG,
+        },
+        {
+          selector: 'TemplateElement[value.raw=/\\[(#|rgb|hsl|oklch)/]',
+          message: COLOR_MSG,
+        },
       ],
     },
   },

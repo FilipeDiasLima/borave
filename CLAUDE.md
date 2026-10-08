@@ -31,6 +31,10 @@ Plataforma de venda de ingressos para eventos com capacidade limitada.
 - `src/db.ts` — instância única do Prisma; sempre importe daqui
 - `prisma/schema.prisma` — modelo de dados
 - `src/components/ui/` — componentes shadcn
+- `src/components/home/` — home (muro de cartazes, ficha do show, bilheteria) e `home.css`
+- `src/data/featured-events.ts` — eventos de EXEMPLO (fictícios) até o cadastro no banco existir
+- `PRODUCT.md` — verdade do produto (público, posicionamento, o que não pode ser inventado)
+- `DESIGN.md` — sistema visual: cores, tipografia e componentes. Leia antes de mexer em UI
 - `.claude/hooks/` — hooks do harness: typecheck + lint após cada edição de `.ts/.tsx` e testes ao concluir a tarefa. Os erros que eles devolvem são para você corrigir na causa
 
 ## Arquivos gerados (nunca edite à mão)
@@ -41,7 +45,8 @@ Plataforma de venda de ingressos para eventos com capacidade limitada.
 ## Regras
 
 - **Invariante principal:** um evento nunca pode vender mais ingressos do que a sua capacidade, nem com compras simultâneas.
-- Valores monetários sempre em centavos (inteiro), nunca float.
+- Valores monetários sempre em centavos (inteiro), nunca float. Formate com `formatBRL` (`src/lib/format.ts`).
+- Cores só pelos tokens de `src/styles.css`; cor arbitrária em className é barrada pelo lint.
 - Deve haver camada de middleware para autenticação, com validação de token.
 - Cookie de auth: sempre `HttpOnly`, `Secure` e `SameSite=Lax`. Nunca expor o token para o JavaScript do cliente.
 - Nunca salvar nenhum tipo de dado sensível no localStorage do navegador e se for necessário ou recomendado, deve ser pedido a permissão para prosseguir

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Minus, Plus } from 'lucide-react'
 
+import { Button } from '#/components/ui/button'
 import { PER_ORDER_LIMIT } from '#/data/featured-events'
 import type { FeaturedEvent, TicketTier } from '#/data/featured-events'
 import { isSoldOut, maxPurchasable } from '#/domain/tickets/purchase-limits'
@@ -63,6 +64,7 @@ export function TicketBooth({ event, idPrefix = '' }: TicketBoothProps) {
     <section
       id={`${idPrefix}ingressos`}
       className="booth"
+      tabIndex={-1}
       aria-labelledby={`${idPrefix}booth-title`}
     >
       <div className="booth__inner">
@@ -181,13 +183,9 @@ export function TicketBooth({ event, idPrefix = '' }: TicketBoothProps) {
                 {formatBRL(totalCents)}
               </span>
             </p>
-            <button
-              type="button"
-              className="btn btn--paper summary__cta"
-              disabled
-            >
+            <Button variant="secondary" className="summary__cta" disabled>
               Finalizar compra
-            </button>
+            </Button>
             <p className="summary__note">
               A finalização da compra chega na próxima etapa do Bora Vê. Por
               enquanto, você já pode montar o seu pedido.

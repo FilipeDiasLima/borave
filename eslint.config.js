@@ -8,6 +8,8 @@ const COLOR_MSG =
   'Cor solta no className. Use os tokens de src/styles.css (ex.: bg-night, text-tungsten). Se faltar uma cor, crie o token lá (ver DESIGN.md).'
 const DOMAIN_MSG =
   'src/domain/ é regra de negócio pura: só importa do próprio domínio (./ ou #/domain/). Nada de Prisma, banco, React, rotas ou HTTP (CLAUDE.md > Estrutura). Quem chama o domínio (rota, server function) é que busca os dados e passa por parâmetro.'
+const HASH_MSG =
+  'Nada de `#` na URL (CLAUDE.md > Regras). Para ir a uma seção da mesma página, use um botão com `scrollToSection(id)` (src/lib/scroll-to-section.ts); para outra página, crie uma rota (ex.: /destaques).'
 const COOKIE_MSG =
   'Cookies de auth são HttpOnly e definidos só pelo servidor (CLAUDE.md > Regras). Não leia nem escreva document.cookie no cliente.'
 
@@ -59,6 +61,15 @@ export default [
         {
           selector: 'TemplateElement[value.raw=/\\[(#|rgb|hsl|oklch)/]',
           message: COLOR_MSG,
+        },
+        // Rotas sem `#`: href="#secao", href="/#secao" e a prop `hash` do Link.
+        {
+          selector: 'JSXAttribute[name.name="href"][value.value=/^\\/?#/]',
+          message: HASH_MSG,
+        },
+        {
+          selector: 'JSXAttribute[name.name="hash"]',
+          message: HASH_MSG,
         },
       ],
     },

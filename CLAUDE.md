@@ -32,12 +32,14 @@ Plataforma de venda de ingressos para eventos com capacidade limitada.
 - `src/db.ts` — instância única do Prisma; sempre importe daqui
 - `prisma/schema.prisma` — modelo de dados
 - `src/contexts/` — contextos da aplicação, tudo que precisar ter um context deve ficar nessa pasta
-- `src/hooks/` — os hooks comuns da aplicação devem ficar salvos nessa pasta
-- `src/components/ui/` — componentes shadcn
+- `src/hooks/` — os hooks comuns da aplicação devem ficar salvos nessa pasta (`use-media-query.ts`, `use-scroll-lock.ts`)
+- `src/components/ui/` — componentes shadcn (base: Base UI, estilo `base-nova`). Os tokens do shadcn em `src/styles.css` (`--background`, `--primary`...) apontam para os tokens do Bora Vê; o site é sempre escuro (`<html class="dark">`). Botão é sempre `Button` (`#/components/ui/button`) com as variantes do Bora Vê: `default` (vermelho), `outline`, `secondary` (papel), `lamp` (tungstênio), `ghost`, `link`
 - `src/components/home/` — home (muro de cartazes, ficha do show, bilheteria) e `home.css`
+- `src/forms/` — as validações de formulários devem ser salvas nessa pasta
 - `src/components/motion-primitives/` — componentes do motion-primitives (código copiado, pode editar). O CLI (`pnpm dlx motion-primitives@latest add <x>`) cria em `components/` na raiz e importa de `@/lib/utils`: mova para `src/components/motion-primitives/` e use imports `#/` e `import type`
 - `src/data/` — eventos de EXEMPLO (fictícios) até o cadastro no banco existir: `featured-events.ts` (os 6 do muro, com `highlight`), `more-events.ts` (outros 15) e `all-events.ts` (todos, por data). `all-events.test.ts` valida os dados contra as regras do domínio
 - `src/components/ui/parallax-scroll.tsx` — Parallax Scroll da Aceternity (`pnpm dlx shadcn@latest add @aceternity/parallax-scroll-demo`), com edição mínima marcada no topo do arquivo (`renderItem`, `gridClassName`). Ao atualizar pelo CLI, reaplique essas duas props
+- `src/lib/scroll-to-section.ts` — `scrollToSection(id)`: leva até uma seção da página sem `#` na URL (a seção precisa de `tabIndex={-1}`)
 - `src/lib/view-transition.ts` — `withViewTransition`: use para transições de elemento compartilhado (card → página do evento). Só um elemento por vez pode ter o mesmo `view-transition-name`
 - `PRODUCT.md` — verdade do produto (público, posicionamento, o que não pode ser inventado)
 - `DESIGN.md` — sistema visual: cores, tipografia e componentes. Leia antes de mexer em UI
@@ -57,19 +59,21 @@ Plataforma de venda de ingressos para eventos com capacidade limitada.
 - Deve haver camada de middleware para autenticação, com validação de token.
 - Cookie de auth: sempre `HttpOnly`, `Secure` e `SameSite=Lax`. Nunca expor o token para o JavaScript do cliente.
 - Nunca salvar nenhum tipo de dado sensível no localStorage do navegador e se for necessário ou recomendado, deve ser pedido a permissão para prosseguir
-- As rotas da url não devem ser preenchidas com "#" e evitar nomes compostos, exemplo a se evitar: "/#em-cartaz", deve ser: "/destaque"
+- As rotas da url não devem ser preenchidas com "#" e evitar nomes compostos, exemplo a se evitar: "/#em-cartaz", deve ser: "/destaque". O lint barra `href="#..."`, `href="/#..."` e a prop `hash` do Link.
 
 ## Regras de trabalho
 
 - Mudou o schema do Prisma? Use `pnpm db:migrate` (não `db:push`) e depois `pnpm db:generate`.
-- Componente novo do shadcn: `pnpm dlx shadcn@latest add <componente>`.
+- Componente novo do shadcn: `pnpm dlx shadcn@latest add <componente>`. Depois de `add`/`init`, confira o `git diff` de `src/styles.css`: o CLI pode reescrever os tokens com cores neutras e trocar a fonte. `e2e/visual-identity.spec.ts` falha se isso acontecer.
+- Mudou regra no `CLAUDE.md`, instalou/atualizou skill ou rodou CLI que gera código (shadcn)? Rode `/audit` (`.agents/skills/audit`) para conferir o projeto inteiro contra as regras novas.
 - Nunca leia nem altere `.env.local` (nem nenhum `.env*`, exceto `.env.example`). O hook `guard.mjs` bloqueia.
 - Ação bloqueada pelo `guard.mjs`? Não tente contornar com outro comando. Faça do jeito que a mensagem indica ou pare e peça ao usuário.
 - Nunca use `eslint-disable` ou `@ts-ignore` para silenciar um erro. Corrija a causa ou pare e pergunte ao usuário.
 - Antes de concluir uma tarefa: `pnpm typecheck`, `pnpm lint` e `pnpm test` precisam passar (e `pnpm test:e2e`, se mexeu em tela).
 - Todo bug de tela que escapar vira um teste em `e2e/` que falha sem a correção. Teste pelo que a pessoa vê e faz (papel e nome acessível: `getByRole`), não por detalhes de implementação.
 - Teste e2e quebrou? Corrija o código, não o teste. Só mude o teste se o comportamento esperado mudou de propósito, e diga isso ao usuário.
-- User preferencialmente componentes prontos de libs que já entregam o componente, como shadcn, motion-primitives, kokonutUI e etc.
+- User preferencialmente componentes prontos de libs que já entregam o componente, como shadcn, motion-primitives, kokonutUI e etc. Instalei uma skill de shadcn para ser usada e quando preciso, instalar novos componentes.
 - Componentizar bem os arquivos, seguir um bom design patterns para o código não ficar muito poluído.
 - Se tiver funções que estão se repetindo, deve-se globaliza no código, a fim de deixa-la acessível para todo o projeto reutiliza
 - Os commits devem ser preferencialmente em uma unica sentença ou frase, evitando um commit longo
+- Para formulários, use o React Hook Form com Zod para validação e @hookform/resolvers para integração entre eles, siga como modelo de exemplo o arquivo `src/examples/forms.txt`

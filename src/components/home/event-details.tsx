@@ -31,6 +31,7 @@ export function EventDetails({
     <section
       id={`${idPrefix}o-show`}
       className={variant === 'sheet' ? 'details details--sheet' : 'details'}
+      tabIndex={-1}
       aria-labelledby={titleId}
     >
       <div className="details__poster">

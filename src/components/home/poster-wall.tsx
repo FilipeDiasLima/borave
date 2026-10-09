@@ -10,6 +10,9 @@ import {
 import { HIGHLIGHT_LABEL } from '#/data/featured-events'
 import type { FeaturedEvent } from '#/data/featured-events'
 import { formatShortDateTime } from '#/lib/format'
+import { useMediaQuery } from '#/hooks/use-media-query'
+import { scrollToSection } from '#/lib/scroll-to-section'
+import { Button } from '#/components/ui/button'
 import { Lamp } from './lamp'
 import { Poster } from './poster'
 
@@ -49,9 +52,16 @@ export function PosterWall({
 
   // Posição do cartaz aceso no trilho; começa no evento ativo, na cópia do meio.
   const [lit, setLit] = useState(total + activeIndex)
-  const [desktop, setDesktop] = useState(true)
+  const desktop = useMediaQuery(DESKTOP_QUERY, true)
   // Instantâneo no primeiro paint (o Carousel ainda mede as células) e nos saltos de volta.
   const [instant, setInstant] = useState(true)
+  // Desktop e celular mostram quantidades diferentes de células. Ao trocar, o trilho
+  // reposiciona sem animação, no mesmo render (padrão do React para estado derivado).
+  const [cellsDesktop, setCellsDesktop] = useState(desktop)
+  if (cellsDesktop !== desktop) {
+    setCellsDesktop(desktop)
+    setInstant(true)
+  }
   const [flickerKey, setFlickerKey] = useState(0)
   // Antes da hidratação, o CSS posiciona o trilho; depois, quem manda é o Carousel.
   const [ready, setReady] = useState(false)
@@ -77,18 +87,6 @@ export function PosterWall({
   useEffect(() => {
     const timer = window.setTimeout(() => setInstant(false), 250)
     return () => window.clearTimeout(timer)
-  }, [])
-
-  // Desktop e celular mostram quantidades diferentes de células.
-  useEffect(() => {
-    const query = window.matchMedia(DESKTOP_QUERY)
-    const sync = () => {
-      setInstant(true)
-      setDesktop(query.matches)
-    }
-    sync()
-    query.addEventListener('change', sync)
-    return () => query.removeEventListener('change', sync)
   }, [])
 
   // Avisa a página e pisca a lâmpada quando o cartaz aceso muda.
@@ -154,6 +152,7 @@ export function PosterWall({
       ref={heroRef}
       id="em-cartaz"
       className="wall"
+      tabIndex={-1}
       aria-roledescription="carrossel"
       aria-label="Eventos em cartaz"
     >
@@ -232,7 +231,7 @@ export function PosterWall({
                       if (start !== null && Math.abs(e.clientX - start) > 8)
                         return
                       if (isActive) {
-                        document.getElementById('o-show')?.scrollIntoView()
+                        scrollToSection('o-show')
                         return
                       }
                       move(offset)
@@ -283,13 +282,17 @@ export function PosterWall({
           >
             <ChevronLeft aria-hidden="true" strokeWidth={1.5} />
           </button>
-          <a className="btn btn--primary" href="#ingressos">
+          <Button onClick={() => scrollToSection('ingressos')}>
             Garantir ingresso
-          </a>
-          <a className="btn btn--ghost" href="#o-show">
+          </Button>
+          <Button variant="outline" onClick={() => scrollToSection('o-show')}>
             Conhecer o show
-            <ArrowDown aria-hidden="true" size={16} strokeWidth={1.75} />
-          </a>
+            <ArrowDown
+              aria-hidden="true"
+              data-icon="inline-end"
+              strokeWidth={1.75}
+            />
+          </Button>
           <button
             type="button"
             className="wall__arrow"

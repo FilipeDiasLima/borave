@@ -39,91 +39,13 @@
   text-transform: uppercase;
 }
 
-.site-header__nav a {
-  color: var(--paper-dim);
-  text-decoration: none;
-  transition: color 200ms var(--ease-out-expo);
-}
-
-.site-header__nav a:hover {
-  color: var(--paper);
-}
-
-.site-header__nav .site-header__cta {
-  color: var(--tungsten);
-  border: 1px solid color-mix(in oklab, var(--tungsten) 60%, transparent);
-  padding: 0.55rem 0.9rem;
-  border-radius: 4px;
-  transition:
-    background-color 200ms var(--ease-out-expo),
-    color 200ms var(--ease-out-expo);
-}
-
-.site-header__nav .site-header__cta:hover {
-  background: var(--tungsten);
-  color: var(--ink);
-}
-
 @media (max-width: 640px) {
-  .site-header__nav a:not(.site-header__cta) {
+  .site-header__link--desktop {
     display: none;
   }
 }
 
-/* ---------- Botões ---------- */
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  min-height: 3rem;
-  padding: 0 1.4rem;
-  border-radius: 4px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-  text-decoration: none;
-  cursor: pointer;
-  border: 1px solid transparent;
-  transition:
-    background-color 220ms var(--ease-out-expo),
-    color 220ms var(--ease-out-expo),
-    border-color 220ms var(--ease-out-expo),
-    box-shadow 220ms var(--ease-out-expo);
-}
-
-.btn--primary {
-  background: var(--poster-red);
-  color: var(--paper);
-  box-shadow: 0 10px 28px -12px
-    color-mix(in oklab, var(--poster-red) 80%, transparent);
-}
-
-.btn--primary:hover {
-  background: var(--poster-red-deep);
-}
-
-.btn--ghost {
-  color: var(--paper);
-  border-color: color-mix(in oklab, var(--paper) 28%, transparent);
-}
-
-.btn--ghost:hover {
-  border-color: var(--tungsten);
-  color: var(--tungsten);
-}
-
-.btn--paper {
-  background: var(--paper);
-  color: var(--ink);
-}
-
-.btn:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
-  box-shadow: none;
-}
+/* Botões: componente Button do shadcn (src/components/ui/button.tsx), variantes do Bora Vê. */
 
 /* ---------- Muro de cartazes ---------- */
 
@@ -1221,12 +1143,6 @@
 
 .site-header__link:hover {
   color: var(--paper);
-}
-
-@media (max-width: 640px) {
-  .site-header__nav .site-header__link {
-    display: inline;
-  }
 }
 
 /* ---------- Listagem (todos os eventos) ---------- */

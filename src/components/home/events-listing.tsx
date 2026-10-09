@@ -3,6 +3,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useEffect, useRef, useState } from 'react'
 
 import { ParallaxScroll } from '#/components/ui/parallax-scroll'
+import { useScrollLock } from '#/hooks/use-scroll-lock'
 import type { FeaturedEvent } from '#/data/featured-events'
 import { formatShortDateTime } from '#/lib/format'
 import { withViewTransition } from '#/lib/view-transition'
@@ -59,15 +60,14 @@ export function EventsListing({
   }
 
   // Trava o scroll da página por baixo e avisa o carrossel para ignorar as setas.
+  useScrollLock(open)
   useEffect(() => {
     if (!open) return
     const root = document.documentElement
     root.dataset.overlay = 'true'
-    root.style.overflow = 'hidden'
     closeRef.current?.focus({ preventScroll: true })
     return () => {
       delete root.dataset.overlay
-      root.style.overflow = ''
     }
   }, [open])
 

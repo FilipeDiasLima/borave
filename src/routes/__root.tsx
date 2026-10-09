@@ -16,7 +16,8 @@ export const Route = createRootRoute({
       },
       {
         name: 'description',
-        content: 'Escolha o show da semana no muro de cartazes do Bora Vê e garanta seu ingresso.',
+        content:
+          'Escolha o show da semana no muro de cartazes do Bora Vê e garanta seu ingresso.',
       },
       {
         name: 'theme-color',
@@ -38,7 +39,8 @@ export const Route = createRootRoute({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR">
+    // `dark`: o site é sempre noturno, e os componentes shadcn usam as variantes escuras.
+    <html lang="pt-BR" className="dark">
       <head>
         <HeadContent />
       </head>

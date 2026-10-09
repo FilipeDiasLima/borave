@@ -54,6 +54,14 @@ export default [
     },
   },
   {
-    ignores: ['eslint.config.js', 'prettier.config.js', '.claude/**'],
+    ignores: [
+      'eslint.config.js',
+      'prettier.config.js',
+      '.claude/**',
+      // Saídas geradas: build e relatórios do Playwright.
+      '.output/**',
+      'test-results/**',
+      'playwright-report/**',
+    ],
   },
 ]

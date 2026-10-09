@@ -12,17 +12,18 @@ Plataforma de venda de ingressos para eventos com capacidade limitada.
 
 ## Comandos
 
-| Comando                  | Para quê                                    |
-| ------------------------ | ------------------------------------------- |
-| `pnpm dev`               | Dev server em http://localhost:3000         |
-| `pnpm build`             | Build de produção                           |
-| `pnpm typecheck`         | Typecheck                                   |
-| `pnpm test`              | Testes (Vitest, execução única)             |
-| `pnpm lint`              | ESLint                                      |
-| `pnpm format`            | Prettier + ESLint --fix                     |
-| `pnpm db:migrate`        | Cria e aplica migration após mudar o schema |
-| `pnpm db:generate`       | Regenera o client do Prisma                 |
-| `pnpm db:seed`           | Popula o banco com dados de exemplo         |
+| Comando            | Para quê                                       |
+| ------------------ | ---------------------------------------------- |
+| `pnpm dev`         | Dev server em http://localhost:3000            |
+| `pnpm build`       | Build de produção                              |
+| `pnpm typecheck`   | Typecheck                                      |
+| `pnpm test`        | Testes (Vitest, execução única)                |
+| `pnpm test:e2e`    | Testes de navegador (Playwright, pasta `e2e/`) |
+| `pnpm lint`        | ESLint                                         |
+| `pnpm format`      | Prettier + ESLint --fix                        |
+| `pnpm db:migrate`  | Cria e aplica migration após mudar o schema    |
+| `pnpm db:generate` | Regenera o client do Prisma                    |
+| `pnpm db:seed`     | Popula o banco com dados de exemplo            |
 
 ## Estrutura
 
@@ -38,7 +39,8 @@ Plataforma de venda de ingressos para eventos com capacidade limitada.
 - `src/lib/view-transition.ts` — `withViewTransition`: use para transições de elemento compartilhado (card → página do evento). Só um elemento por vez pode ter o mesmo `view-transition-name`
 - `PRODUCT.md` — verdade do produto (público, posicionamento, o que não pode ser inventado)
 - `DESIGN.md` — sistema visual: cores, tipografia e componentes. Leia antes de mexer em UI
-- `.claude/hooks/` — hooks do harness: typecheck + lint após cada edição de `.ts/.tsx` e testes ao concluir a tarefa. Os erros que eles devolvem são para você corrigir na causa
+- `e2e/` — testes de navegador (Playwright). `fixtures.ts` troca as fotos do Unsplash por cartazes falsos e falha o teste se a página tiver erro de JavaScript. `*.mobile.spec.ts` roda no celular (Pixel 7, toque); o resto no desktop (1440×900). O servidor dos testes sobe sozinho na porta 3100
+- `.claude/hooks/` — hooks do harness: typecheck + lint após cada edição de `.ts/.tsx`; ao concluir a tarefa, `pnpm test` e, se a tarefa mexeu em tela (`src/components`, `src/routes`, `src/styles.css`, `src/data`, `e2e`), `pnpm test:e2e`. Os erros que eles devolvem são para você corrigir na causa
 
 ## Arquivos gerados (nunca edite à mão)
 
@@ -60,4 +62,6 @@ Plataforma de venda de ingressos para eventos com capacidade limitada.
 - Componente novo do shadcn: `pnpm dlx shadcn@latest add <componente>`.
 - Nunca leia nem altere `.env.local`.
 - Nunca use `eslint-disable` ou `@ts-ignore` para silenciar um erro. Corrija a causa ou pare e pergunte ao usuário.
-- Antes de concluir uma tarefa: `pnpm typecheck`, `pnpm lint` e `pnpm test` precisam passar.
+- Antes de concluir uma tarefa: `pnpm typecheck`, `pnpm lint` e `pnpm test` precisam passar (e `pnpm test:e2e`, se mexeu em tela).
+- Todo bug de tela que escapar vira um teste em `e2e/` que falha sem a correção. Teste pelo que a pessoa vê e faz (papel e nome acessível: `getByRole`), não por detalhes de implementação.
+- Teste e2e quebrou? Corrija o código, não o teste. Só mude o teste se o comportamento esperado mudou de propósito, e diga isso ao usuário.

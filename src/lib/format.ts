@@ -36,3 +36,13 @@ export function formatShortDateTime(iso: string): string {
   const weekday = parts(iso, { weekday: 'short' }).replace('.', '')
   return `${weekday}, ${formatDay(iso)} ${formatMonthShort(iso)} · ${formatTime(iso)}`
 }
+
+const isoDate = new Intl.DateTimeFormat('en-CA', {
+  timeZone: TIME_ZONE,
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+})
+
+/** Data de hoje no Brasil, em `AAAA-MM-DD` (o servidor roda em UTC). */
+export const todayIsoDate = (now: Date = new Date()) => isoDate.format(now)

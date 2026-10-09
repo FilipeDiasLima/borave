@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatBRL, formatShortDateTime, formatTime } from './format'
+import { formatBRL, formatShortDateTime, formatTime, todayIsoDate } from './format'
 
 describe('formatBRL', () => {
   it('formata centavos em reais', () => {
@@ -20,5 +20,10 @@ describe('datas no fuso de São Paulo', () => {
 
   it('monta a linha curta de data', () => {
     expect(formatShortDateTime('2026-10-10T21:00:00-03:00')).toBe('sáb, 10 out · 21h')
+  })
+
+  it('o dia de hoje vira à meia-noite de Brasília, não de UTC', () => {
+    expect(todayIsoDate(new Date('2026-10-10T02:59:00Z'))).toBe('2026-10-09')
+    expect(todayIsoDate(new Date('2026-10-10T03:00:00Z'))).toBe('2026-10-10')
   })
 })

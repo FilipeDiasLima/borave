@@ -12,19 +12,20 @@ Plataforma de venda de ingressos para eventos com capacidade limitada.
 
 ## Comandos
 
-| Comando            | Para quê                                                    |
-| ------------------ | ----------------------------------------------------------- |
-| `pnpm dev`         | Dev server em http://localhost:3000                         |
-| `pnpm build`       | Build de produção                                           |
-| `pnpm typecheck`   | Typecheck                                                   |
-| `pnpm test`        | Testes (Vitest, execução única)                             |
-| `pnpm test:e2e`    | Testes de navegador (Playwright, pasta `e2e/`)              |
-| `pnpm skills:sync` | Move skills instaladas de `.agents/` para `.claude/skills/` |
-| `pnpm lint`        | ESLint                                                      |
-| `pnpm format`      | Prettier + ESLint --fix                                     |
-| `pnpm db:migrate`  | Cria e aplica migration após mudar o schema                 |
-| `pnpm db:generate` | Regenera o client do Prisma                                 |
-| `pnpm db:seed`     | Popula o banco com dados de exemplo                         |
+| Comando            | Para quê                                                     |
+| ------------------ | ------------------------------------------------------------ |
+| `pnpm dev`         | Dev server em http://localhost:3000                          |
+| `pnpm build`       | Build de produção                                            |
+| `pnpm typecheck`   | Typecheck                                                    |
+| `pnpm test`        | Testes (Vitest, execução única)                              |
+| `pnpm test:e2e`    | Testes de navegador (Playwright, pasta `e2e/`)               |
+| `pnpm skills:sync` | Move skills instaladas de `.agents/` para `.claude/skills/`  |
+| `pnpm lint`        | ESLint                                                       |
+| `pnpm format`      | Prettier + ESLint --fix                                      |
+| `pnpm db:migrate`  | Cria e aplica migration após mudar o schema                  |
+| `pnpm db:generate` | Regenera o client do Prisma                                  |
+| `pnpm db:seed`     | Popula o banco com dados de exemplo                          |
+| `pnpm ibge:fetch`  | Atualiza `src/data/ibge-localidades.json` (UFs e municípios) |
 
 ## Estrutura
 
@@ -39,6 +40,7 @@ Plataforma de venda de ingressos para eventos com capacidade limitada.
 - `src/forms/` — as validações de formulários devem ser salvas nessa pasta
 - `src/components/motion-primitives/` — componentes do motion-primitives (código copiado, pode editar). O CLI (`pnpm dlx motion-primitives@latest add <x>`) cria em `components/` na raiz e importa de `@/lib/utils`: mova para `src/components/motion-primitives/` e use imports `#/` e `import type`
 - `src/data/` — eventos de EXEMPLO (fictícios) até o cadastro no banco existir: `featured-events.ts` (os 6 do muro, com `highlight`), `more-events.ts` (outros 15) e `all-events.ts` (todos, por data). `all-events.test.ts` valida os dados contra as regras do domínio
+- `src/data/ibge-localidades.json` — UFs e municípios oficiais do IBGE, gerado por `pnpm ibge:fetch` (`scripts/fetch-ibge.ts`); nunca edite à mão. Use via `src/data/localities.ts`. O app não chama o IBGE em tempo de execução
 - `src/components/ui/parallax-scroll.tsx` — Parallax Scroll da Aceternity (`pnpm dlx shadcn@latest add @aceternity/parallax-scroll-demo`), com edição mínima marcada no topo do arquivo (`renderItem`, `gridClassName`). Ao atualizar pelo CLI, reaplique essas duas props
 - `src/lib/scroll-to-section.ts` — `scrollToSection(id)`: leva até uma seção da página sem `#` na URL (a seção precisa de `tabIndex={-1}`)
 - `src/lib/view-transition.ts` — `withViewTransition`: use para transições de elemento compartilhado (card → página do evento). Só um elemento por vez pode ter o mesmo `view-transition-name`

@@ -13,19 +13,10 @@ const prisma = new PrismaClient({ adapter })
 async function main() {
   console.log('🌱 Seeding database...')
 
-  // Clear existing todos
-  await prisma.todo.deleteMany()
+  // Contas e perfis nascem do login com o Google: não há dado de exemplo para semear ainda.
+  // Os eventos de exemplo continuam em `src/data/` até o cadastro de eventos existir no banco.
 
-  // Create example todos
-  const todos = await prisma.todo.createMany({
-    data: [
-      { title: 'Buy groceries' },
-      { title: 'Read a book' },
-      { title: 'Workout' },
-    ],
-  })
-
-  console.log(`✅ Created ${todos.count} todos`)
+  console.log('✅ Nada para semear por enquanto')
 }
 
 main()

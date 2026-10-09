@@ -12,18 +12,19 @@ Plataforma de venda de ingressos para eventos com capacidade limitada.
 
 ## Comandos
 
-| Comando            | Para quê                                       |
-| ------------------ | ---------------------------------------------- |
-| `pnpm dev`         | Dev server em http://localhost:3000            |
-| `pnpm build`       | Build de produção                              |
-| `pnpm typecheck`   | Typecheck                                      |
-| `pnpm test`        | Testes (Vitest, execução única)                |
-| `pnpm test:e2e`    | Testes de navegador (Playwright, pasta `e2e/`) |
-| `pnpm lint`        | ESLint                                         |
-| `pnpm format`      | Prettier + ESLint --fix                        |
-| `pnpm db:migrate`  | Cria e aplica migration após mudar o schema    |
-| `pnpm db:generate` | Regenera o client do Prisma                    |
-| `pnpm db:seed`     | Popula o banco com dados de exemplo            |
+| Comando            | Para quê                                                    |
+| ------------------ | ----------------------------------------------------------- |
+| `pnpm dev`         | Dev server em http://localhost:3000                         |
+| `pnpm build`       | Build de produção                                           |
+| `pnpm typecheck`   | Typecheck                                                   |
+| `pnpm test`        | Testes (Vitest, execução única)                             |
+| `pnpm test:e2e`    | Testes de navegador (Playwright, pasta `e2e/`)              |
+| `pnpm skills:sync` | Move skills instaladas de `.agents/` para `.claude/skills/` |
+| `pnpm lint`        | ESLint                                                      |
+| `pnpm format`      | Prettier + ESLint --fix                                     |
+| `pnpm db:migrate`  | Cria e aplica migration após mudar o schema                 |
+| `pnpm db:generate` | Regenera o client do Prisma                                 |
+| `pnpm db:seed`     | Popula o banco com dados de exemplo                         |
 
 ## Estrutura
 
@@ -44,7 +45,19 @@ Plataforma de venda de ingressos para eventos com capacidade limitada.
 - `PRODUCT.md` — verdade do produto (público, posicionamento, o que não pode ser inventado)
 - `DESIGN.md` — sistema visual: cores, tipografia e componentes. Leia antes de mexer em UI
 - `e2e/` — testes de navegador (Playwright). `fixtures.ts` troca as fotos do Unsplash por cartazes falsos e falha o teste se a página tiver erro de JavaScript. `*.mobile.spec.ts` roda no celular (Pixel 7, toque); o resto no desktop (1440×900). O servidor dos testes sobe sozinho na porta 3100
+- `.claude/skills/` — **todas** as skills do projeto, as instaladas (impeccable, shadcn, improve-codebase-architecture) e as nossas (audit, work-on). Não existe `.agents/`: o instalador (`npx skills`) cria essa pasta; depois de instalar ou atualizar uma skill, rode `pnpm skills:sync`
 - `.claude/hooks/` — hooks do harness: antes de cada ação, `guard.mjs` bloqueia comandos destrutivos (`db push`, `migrate reset`, `DROP`/`TRUNCATE`, `git push --force`, `git reset --hard`) e qualquer acesso a `.env*` (regras testadas em `guard.test.mjs`); depois de cada edição de `.ts/.tsx`, typecheck + lint; ao concluir a tarefa, `pnpm test` e, se a tarefa mexeu em tela (`src/components`, `src/routes`, `src/styles.css`, `src/data`, `e2e`), `pnpm test:e2e`. Os erros que eles devolvem são para você corrigir na causa
+
+## Fluxo de tarefas
+
+- As tarefas ficam no Jira, projeto **BEH** (quadro Scrum: https://byintera.atlassian.net/jira/software/projects/BEH/boards/1373). Leia a tarefa inteira (objetivo, critério de aceite, fora do escopo, dependências) antes de começar.
+- **Toda tarefa tem uma branch própria, criada a partir da `main` atualizada.** Nome: `BEH-<número>-<resumo-curto>` (ex.: `BEH-2-banco-prisma`). Nunca trabalhe direto na `main` nem reaproveite a branch de outra tarefa.
+  ```
+  git switch main && git pull && git switch -c BEH-2-banco-prisma
+  ```
+- Tarefa bloqueada por outra (vínculo "is blocked by" no Jira) só começa depois que a outra entrou na `main`.
+- Para executar uma tarefa do início ao PR, use `/work-on BEH-<n>` (`.claude/skills/work-on`). O PR só entra na `main` com o CI verde (`.github/workflows/ci.yml`: typecheck, lint, testes, build e testes de navegador).
+- Termine com o critério de aceite atendido e as checagens passando. Commit em uma frase, citando a tarefa (ex.: `feat(BEH-2): schema de conta e perfil no Prisma`).
 
 ## Arquivos gerados (nunca edite à mão)
 
@@ -65,7 +78,7 @@ Plataforma de venda de ingressos para eventos com capacidade limitada.
 
 - Mudou o schema do Prisma? Use `pnpm db:migrate` (não `db:push`) e depois `pnpm db:generate`.
 - Componente novo do shadcn: `pnpm dlx shadcn@latest add <componente>`. Depois de `add`/`init`, confira o `git diff` de `src/styles.css`: o CLI pode reescrever os tokens com cores neutras e trocar a fonte. `e2e/visual-identity.spec.ts` falha se isso acontecer.
-- Mudou regra no `CLAUDE.md`, instalou/atualizou skill ou rodou CLI que gera código (shadcn)? Rode `/audit` (`.agents/skills/audit`) para conferir o projeto inteiro contra as regras novas.
+- Mudou regra no `CLAUDE.md`, instalou/atualizou skill ou rodou CLI que gera código (shadcn)? Rode `/audit` (`.claude/skills/audit`) para conferir o projeto inteiro contra as regras novas.
 - Nunca leia nem altere `.env.local` (nem nenhum `.env*`, exceto `.env.example`). O hook `guard.mjs` bloqueia.
 - Ação bloqueada pelo `guard.mjs`? Não tente contornar com outro comando. Faça do jeito que a mensagem indica ou pare e peça ao usuário.
 - Nunca use `eslint-disable` ou `@ts-ignore` para silenciar um erro. Corrija a causa ou pare e pergunte ao usuário.

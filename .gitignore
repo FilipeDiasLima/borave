@@ -15,3 +15,6 @@ src/generated
 # Playwright
 test-results
 playwright-report
+
+# Worktrees do Claude Code (claude -w)
+.claude/worktrees/

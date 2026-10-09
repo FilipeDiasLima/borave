@@ -1,0 +1,103 @@
+# CI do Bora Vê: a mesma barreira dos hooks locais, agora em todo PR e todo push na main.
+# Um PR só deve entrar na main com os dois jobs verdes (proteção de branch no GitHub).
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Valores de mentira, só para o CI. Nenhum segredo real entra aqui.
+  # O Postgres é o serviço local de cada job (abaixo).
+  DATABASE_URL: postgresql://borave:borave@localhost:5432/borave
+  BETTER_AUTH_SECRET: ci-secret-nao-usar-em-producao-0123456789
+  BETTER_AUTH_URL: http://localhost:3100
+  GOOGLE_CLIENT_ID: ci-google-client-id
+  GOOGLE_CLIENT_SECRET: ci-google-client-secret
+
+jobs:
+  checks:
+    name: Typecheck, lint, testes e build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: borave
+          POSTGRES_PASSWORD: borave
+          POSTGRES_DB: borave
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U borave"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      # O postinstall gera o client do Prisma (precisa só da DATABASE_URL, não conecta).
+      - run: pnpm install --frozen-lockfile
+      - name: Aplicar migrations
+        run: |
+          if [ -d prisma/migrations ]; then pnpm exec prisma migrate deploy; else echo "Sem migrations ainda."; fi
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm test
+      - run: pnpm build
+
+  e2e:
+    name: Testes de navegador
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: borave
+          POSTGRES_PASSWORD: borave
+          POSTGRES_DB: borave
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U borave"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Aplicar migrations
+        run: |
+          if [ -d prisma/migrations ]; then pnpm exec prisma migrate deploy; else echo "Sem migrations ainda."; fi
+      - name: Instalar o Chromium do Playwright
+        run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm test:e2e
+        env:
+          CI: 'true'
+      # Falhou? O relatório traz screenshot e trace de cada teste que quebrou.
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7

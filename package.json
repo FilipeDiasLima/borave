@@ -21,6 +21,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:e2e": "playwright test",
+    "skills:sync": "bash scripts/skills-to-claude.sh",
     "postinstall": "pnpm db:generate",
     "db:seed": "dotenv -e .env.local -- prisma db seed"
   },

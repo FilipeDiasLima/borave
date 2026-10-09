@@ -28,9 +28,11 @@ Plataforma de venda de ingressos para eventos com capacidade limitada.
 ## Estrutura
 
 - `src/routes/` — páginas e rotas (file-based routing)
-- `src/domain/` — regras de negócio puras, com teste ao lado (`*.test.ts`). Nunca importe Prisma, React ou HTTP aqui
+- `src/domain/` — regras de negócio puras, com teste ao lado (`*.test.ts`). Nunca importe Prisma, React ou HTTP aqui: o lint só deixa importar do próprio domínio (`./`, `#/domain/`)
 - `src/db.ts` — instância única do Prisma; sempre importe daqui
 - `prisma/schema.prisma` — modelo de dados
+- `src/contexts/` — contextos da aplicação, tudo que precisar ter um context deve ficar nessa pasta
+- `src/hooks/` — os hooks comuns da aplicação devem ficar salvos nessa pasta
 - `src/components/ui/` — componentes shadcn
 - `src/components/home/` — home (muro de cartazes, ficha do show, bilheteria) e `home.css`
 - `src/components/motion-primitives/` — componentes do motion-primitives (código copiado, pode editar). O CLI (`pnpm dlx motion-primitives@latest add <x>`) cria em `components/` na raiz e importa de `@/lib/utils`: mova para `src/components/motion-primitives/` e use imports `#/` e `import type`
@@ -40,7 +42,7 @@ Plataforma de venda de ingressos para eventos com capacidade limitada.
 - `PRODUCT.md` — verdade do produto (público, posicionamento, o que não pode ser inventado)
 - `DESIGN.md` — sistema visual: cores, tipografia e componentes. Leia antes de mexer em UI
 - `e2e/` — testes de navegador (Playwright). `fixtures.ts` troca as fotos do Unsplash por cartazes falsos e falha o teste se a página tiver erro de JavaScript. `*.mobile.spec.ts` roda no celular (Pixel 7, toque); o resto no desktop (1440×900). O servidor dos testes sobe sozinho na porta 3100
-- `.claude/hooks/` — hooks do harness: typecheck + lint após cada edição de `.ts/.tsx`; ao concluir a tarefa, `pnpm test` e, se a tarefa mexeu em tela (`src/components`, `src/routes`, `src/styles.css`, `src/data`, `e2e`), `pnpm test:e2e`. Os erros que eles devolvem são para você corrigir na causa
+- `.claude/hooks/` — hooks do harness: antes de cada ação, `guard.mjs` bloqueia comandos destrutivos (`db push`, `migrate reset`, `DROP`/`TRUNCATE`, `git push --force`, `git reset --hard`) e qualquer acesso a `.env*` (regras testadas em `guard.test.mjs`); depois de cada edição de `.ts/.tsx`, typecheck + lint; ao concluir a tarefa, `pnpm test` e, se a tarefa mexeu em tela (`src/components`, `src/routes`, `src/styles.css`, `src/data`, `e2e`), `pnpm test:e2e`. Os erros que eles devolvem são para você corrigir na causa
 
 ## Arquivos gerados (nunca edite à mão)
 
@@ -55,13 +57,19 @@ Plataforma de venda de ingressos para eventos com capacidade limitada.
 - Deve haver camada de middleware para autenticação, com validação de token.
 - Cookie de auth: sempre `HttpOnly`, `Secure` e `SameSite=Lax`. Nunca expor o token para o JavaScript do cliente.
 - Nunca salvar nenhum tipo de dado sensível no localStorage do navegador e se for necessário ou recomendado, deve ser pedido a permissão para prosseguir
+- As rotas da url não devem ser preenchidas com "#" e evitar nomes compostos, exemplo a se evitar: "/#em-cartaz", deve ser: "/destaque"
 
 ## Regras de trabalho
 
 - Mudou o schema do Prisma? Use `pnpm db:migrate` (não `db:push`) e depois `pnpm db:generate`.
 - Componente novo do shadcn: `pnpm dlx shadcn@latest add <componente>`.
-- Nunca leia nem altere `.env.local`.
+- Nunca leia nem altere `.env.local` (nem nenhum `.env*`, exceto `.env.example`). O hook `guard.mjs` bloqueia.
+- Ação bloqueada pelo `guard.mjs`? Não tente contornar com outro comando. Faça do jeito que a mensagem indica ou pare e peça ao usuário.
 - Nunca use `eslint-disable` ou `@ts-ignore` para silenciar um erro. Corrija a causa ou pare e pergunte ao usuário.
 - Antes de concluir uma tarefa: `pnpm typecheck`, `pnpm lint` e `pnpm test` precisam passar (e `pnpm test:e2e`, se mexeu em tela).
 - Todo bug de tela que escapar vira um teste em `e2e/` que falha sem a correção. Teste pelo que a pessoa vê e faz (papel e nome acessível: `getByRole`), não por detalhes de implementação.
 - Teste e2e quebrou? Corrija o código, não o teste. Só mude o teste se o comportamento esperado mudou de propósito, e diga isso ao usuário.
+- User preferencialmente componentes prontos de libs que já entregam o componente, como shadcn, motion-primitives, kokonutUI e etc.
+- Componentizar bem os arquivos, seguir um bom design patterns para o código não ficar muito poluído.
+- Se tiver funções que estão se repetindo, deve-se globaliza no código, a fim de deixa-la acessível para todo o projeto reutiliza
+- Os commits devem ser preferencialmente em uma unica sentença ou frase, evitando um commit longo

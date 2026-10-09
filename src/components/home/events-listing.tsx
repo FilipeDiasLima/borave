@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { X } from 'lucide-react'
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
+import { useEffect, useRef, useState } from 'react'
 
 import { ParallaxScroll } from '#/components/ui/parallax-scroll'
 import type { FeaturedEvent } from '#/data/featured-events'

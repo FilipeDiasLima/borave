@@ -14,7 +14,11 @@
   align-items: center;
   justify-content: space-between;
   padding-inline: clamp(1rem, 4vw, 3rem);
-  background: linear-gradient(to bottom, var(--night) 20%, color-mix(in oklab, var(--night) 0%, transparent));
+  background: linear-gradient(
+    to bottom,
+    var(--night) 20%,
+    color-mix(in oklab, var(--night) 0%, transparent)
+  );
 }
 
 .site-header__brand {
@@ -50,7 +54,9 @@
   border: 1px solid color-mix(in oklab, var(--tungsten) 60%, transparent);
   padding: 0.55rem 0.9rem;
   border-radius: 4px;
-  transition: background-color 200ms var(--ease-out-expo), color 200ms var(--ease-out-expo);
+  transition:
+    background-color 200ms var(--ease-out-expo),
+    color 200ms var(--ease-out-expo);
 }
 
 .site-header__nav .site-header__cta:hover {
@@ -90,7 +96,8 @@
 .btn--primary {
   background: var(--poster-red);
   color: var(--paper);
-  box-shadow: 0 10px 28px -12px color-mix(in oklab, var(--poster-red) 80%, transparent);
+  box-shadow: 0 10px 28px -12px
+    color-mix(in oklab, var(--poster-red) 80%, transparent);
 }
 
 .btn--primary:hover {
@@ -194,7 +201,9 @@
   display: block;
   width: 100%;
   height: auto;
-  filter: drop-shadow(0 10px 18px color-mix(in oklab, var(--night) 90%, transparent));
+  filter: drop-shadow(
+    0 10px 18px color-mix(in oklab, var(--night) 90%, transparent)
+  );
 }
 
 /* Brilho da lâmpada em volta do aro. */
@@ -244,13 +253,27 @@
 
 /* Tungstênio esquentando: falha, acende, falha, assenta. */
 @keyframes tungsten-flicker {
-  0% { opacity: 0.15; }
-  12% { opacity: 0.85; }
-  20% { opacity: 0.25; }
-  34% { opacity: 1; }
-  46% { opacity: 0.55; }
-  60% { opacity: 1; }
-  100% { opacity: calc(1 - var(--scroll) * 0.75); }
+  0% {
+    opacity: 0.15;
+  }
+  12% {
+    opacity: 0.85;
+  }
+  20% {
+    opacity: 0.25;
+  }
+  34% {
+    opacity: 1;
+  }
+  46% {
+    opacity: 0.55;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    opacity: calc(1 - var(--scroll) * 0.75);
+  }
 }
 
 .wall__stage {
@@ -292,10 +315,18 @@
   padding-block: 2.5rem;
 }
 
-.wall__item--d0 { z-index: 10; }
-.wall__item--d1 { z-index: 9; }
-.wall__item--d2 { z-index: 8; }
-.wall__item--d3 { z-index: 7; }
+.wall__item--d0 {
+  z-index: 10;
+}
+.wall__item--d1 {
+  z-index: 9;
+}
+.wall__item--d2 {
+  z-index: 8;
+}
+.wall__item--d3 {
+  z-index: 7;
+}
 
 .wall__slot {
   position: relative;
@@ -429,14 +460,18 @@
   height: 0.9rem;
   padding: 0;
   border: 0;
-  background: linear-gradient(var(--soot), var(--soot)) center / 100% 3px no-repeat;
+  background: linear-gradient(var(--soot), var(--soot)) center / 100% 3px
+    no-repeat;
   cursor: pointer;
-  transition: width 400ms var(--ease-out-expo), background 400ms var(--ease-out-expo);
+  transition:
+    width 400ms var(--ease-out-expo),
+    background 400ms var(--ease-out-expo);
 }
 
 .wall__dot[data-active='true'] {
   width: 2.25rem;
-  background: linear-gradient(var(--tungsten), var(--tungsten)) center / 100% 3px no-repeat;
+  background: linear-gradient(var(--tungsten), var(--tungsten)) center / 100%
+    3px no-repeat;
 }
 
 @media (max-width: 720px) {
@@ -465,9 +500,10 @@
   margin: 0;
   overflow: hidden;
   container-type: inline-size;
-  border-radius: 2px;
+  border-radius: 4px;
   background-color: var(--soot);
-  box-shadow: 0 24px 40px -18px color-mix(in oklab, var(--night) 95%, transparent);
+  box-shadow: 0 24px 40px -18px
+    color-mix(in oklab, var(--night) 95%, transparent);
   filter: brightness(0.3) saturate(0.55);
   transition:
     filter 700ms var(--ease-out-expo),
@@ -476,7 +512,8 @@
 
 .poster[data-lit='true'] {
   filter: none;
-  box-shadow: 0 46px 70px -24px color-mix(in oklab, var(--night) 100%, transparent);
+  box-shadow: 0 46px 70px -24px
+    color-mix(in oklab, var(--night) 100%, transparent);
 }
 
 /* A luz da lâmpada caindo sobre o papel: ponto quente no topo, esfriando para baixo.
@@ -493,7 +530,11 @@
       color-mix(in oklab, var(--tungsten) 18%, transparent) 55%,
       transparent 100%
     ),
-    linear-gradient(to bottom, color-mix(in oklab, var(--tungsten) 10%, transparent), transparent 70%);
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--tungsten) 10%, transparent),
+      transparent 70%
+    );
   mix-blend-mode: screen;
   opacity: 0;
   transition: opacity 700ms var(--ease-out-expo);
@@ -543,8 +584,16 @@
 
 .poster[data-layout='title-top'] .poster__grade {
   background:
-    linear-gradient(to bottom, color-mix(in oklab, var(--night) 82%, transparent) 0%, transparent 46%),
-    linear-gradient(to top, color-mix(in oklab, var(--night) 70%, transparent) 0%, transparent 22%);
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--night) 82%, transparent) 0%,
+      transparent 46%
+    ),
+    linear-gradient(
+      to top,
+      color-mix(in oklab, var(--night) 70%, transparent) 0%,
+      transparent 22%
+    );
 }
 
 /* A luz cai de cima: o topo do cartaz iluminado esquenta. */
@@ -803,7 +852,11 @@
 
 .booth {
   background:
-    radial-gradient(ellipse 80% 50% at 50% 0%, color-mix(in oklab, var(--poster-red) 55%, transparent), transparent 70%),
+    radial-gradient(
+      ellipse 80% 50% at 50% 0%,
+      color-mix(in oklab, var(--poster-red) 55%, transparent),
+      transparent 70%
+    ),
     var(--poster-red-deep);
   color: var(--paper);
 }
@@ -856,10 +909,13 @@
   background: var(--paper);
   color: var(--ink);
   border-radius: 10px;
-  box-shadow: 0 18px 30px -18px color-mix(in oklab, var(--night) 90%, transparent);
+  box-shadow: 0 18px 30px -18px
+    color-mix(in oklab, var(--night) 90%, transparent);
   mask:
-    radial-gradient(circle 0.7rem at var(--perf) 0, transparent 98%, #000) top / 100% 51% no-repeat,
-    radial-gradient(circle 0.7rem at var(--perf) 100%, transparent 98%, #000) bottom / 100% 51% no-repeat;
+    radial-gradient(circle 0.7rem at var(--perf) 0, transparent 98%, #000) top /
+      100% 51% no-repeat,
+    radial-gradient(circle 0.7rem at var(--perf) 100%, transparent 98%, #000)
+      bottom / 100% 51% no-repeat;
 }
 
 .stub__main {
@@ -968,7 +1024,8 @@
   border-radius: 14px;
   background: var(--night);
   color: var(--paper);
-  box-shadow: 0 30px 50px -28px color-mix(in oklab, var(--night) 100%, transparent);
+  box-shadow: 0 30px 50px -28px
+    color-mix(in oklab, var(--night) 100%, transparent);
 }
 
 .summary__title {
@@ -1181,7 +1238,11 @@
   display: flex;
   flex-direction: column;
   background:
-    radial-gradient(ellipse 60% 40% at 50% 0%, color-mix(in oklab, var(--tungsten) 12%, transparent), transparent 70%),
+    radial-gradient(
+      ellipse 60% 40% at 50% 0%,
+      color-mix(in oklab, var(--tungsten) 12%, transparent),
+      transparent 70%
+    ),
     var(--night);
 }
 
